@@ -1,7 +1,7 @@
 package com.gtnewhorizons.gwmclient;
 
-import cpw.mods.fml.common.network.NetworkCheckHandler;
-import cpw.mods.fml.relauncher.Side;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,16 +11,22 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.network.NetworkCheckHandler;
+import cpw.mods.fml.relauncher.Side;
 
-import java.util.Map;
-
-@Mod(modid = GwmClientMod.MODID, version = Tags.VERSION, name = "GTNH-Web-Map-Client", acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+    modid = GwmClientMod.MODID,
+    version = Tags.VERSION,
+    name = "GTNH-Web-Map-Client",
+    acceptedMinecraftVersions = "[1.7.10]")
 public class GwmClientMod {
 
     public static final String MODID = "gwmclient";
     public static final Logger LOG = LogManager.getLogger(MODID);
 
-    @SidedProxy(clientSide = "com.gtnewhorizons.gwmclient.ClientProxy", serverSide = "com.gtnewhorizons.gwmclient.CommonProxy")
+    @SidedProxy(
+        clientSide = "com.gtnewhorizons.gwmclient.ClientProxy",
+        serverSide = "com.gtnewhorizons.gwmclient.CommonProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler
