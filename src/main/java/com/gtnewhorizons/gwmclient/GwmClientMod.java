@@ -22,6 +22,7 @@ import cpw.mods.fml.relauncher.Side;
 public class GwmClientMod {
 
     public static final String MODID = "gwmclient";
+    public static final String NAME = "GTNH-Web-Map-Client";
     public static final Logger LOG = LogManager.getLogger(MODID);
 
     @SidedProxy(

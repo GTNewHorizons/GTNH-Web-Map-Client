@@ -34,5 +34,8 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
+    shadowImplementation('com.github.cliftonlabs:json-simple:4.0.1')
+
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.5.4-GTNH:dev")
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:GTNH-Web-Map:0.3.29:dev")
 }
