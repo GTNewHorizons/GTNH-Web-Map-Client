@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonException;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.Tessellator;
 
@@ -18,7 +22,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
 
-import com.github.cliftonlabs.json_simple.*;
 import com.gtnewhorizons.gwmclient.storage.PerMapTileDataBase;
 import com.gtnewhorizons.gwmclient.storage.Tile;
 
