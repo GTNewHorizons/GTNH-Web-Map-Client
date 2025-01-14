@@ -1,33 +1,28 @@
 package com.gtnewhorizons.gwmclient.client;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
 
-import com.github.cliftonlabs.json_simple.JsonArray;
-import com.github.cliftonlabs.json_simple.JsonException;
-import com.github.cliftonlabs.json_simple.JsonObject;
-import com.github.cliftonlabs.json_simple.Jsoner;
+import com.cleanroommc.modularui.widget.sizer.Area;
 import com.gtnewhorizons.gwmclient.storage.PerMapTileDataBase;
+import com.gtnewhorizons.gwmclient.storage.RemoteConfiguration;
 import com.gtnewhorizons.gwmclient.storage.Tile;
 
-public class MapScreen extends GuiScreen {
+public class MapDrawer {
 
     static ExecutorService backgroundLoader = Executors.newSingleThreadExecutor();
+    RemoteConfiguration remoteConfig;
+    private final int width;
+    private final int height;
     Rectangle drawArea = new Rectangle(0, 0, 100, 100);
 
     PerMapTileDataBase currentMap;
@@ -39,7 +34,9 @@ public class MapScreen extends GuiScreen {
 
     boolean loadingMapList = true;
 
-    public MapScreen() {
+    public MapDrawer(int width, int height) {
+        this.width = width;
+        this.height = height;
 
         backgroundLoader.submit(() -> loadMapList());
 
@@ -49,44 +46,14 @@ public class MapScreen extends GuiScreen {
     }
 
     private void loadMapList() {
-        try {
-            URL imageURL = new URL("http://127.0.0.1:8123/up/configuration");
-            InputStream is = imageURL.openConnection()
-                .getInputStream();
 
-            JsonObject jsonObject = (JsonObject) Jsoner.deserialize(new InputStreamReader(is));
+        remoteConfig = new RemoteConfiguration();
+        remoteConfig.load();
 
-            JsonArray worlds = (JsonArray) jsonObject.get("worlds");
+        allMaps = remoteConfig.allMaps;
 
-            for (Object obj : worlds) {
-                if (obj instanceof JsonObject worldObj) {
-                    String worldName = (String) worldObj.get("name");
-                    String worldTitle = (String) worldObj.get("title");
-
-                    JsonArray mapsArr = (JsonArray) worldObj.get("maps");
-
-                    for (Object tmpMapObj : mapsArr) {
-                        if (tmpMapObj instanceof JsonObject mapObj) {
-                            String mapName = (String) mapObj.get("name");
-                            String mapTitle = (String) mapObj.get("title");
-                            String mapPrefix = (String) mapObj.get("prefix");
-
-                            allMaps.add(new PerMapTileDataBase(worldName, mapPrefix, worldTitle + " - " + mapTitle));
-                        }
-                    }
-                }
-            }
-
-            if (allMaps.size() > 0) {
-                currentMap = allMaps.get(0);
-            }
-
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (JsonException e) {
-            throw new RuntimeException(e);
+        if (allMaps.size() > 0) {
+            currentMap = allMaps.get(0);
         }
         loadingMapList = false;
     }
@@ -96,15 +63,10 @@ public class MapScreen extends GuiScreen {
         return currentMap.getTileAt(x, y, zoom);
     }
 
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
-
-        drawBackground(0);
-
+    void draw() {
         if (currentMap == null) {
-            if (loadingMapList) drawString(fontRendererObj, "Loading maps...", 10, 10, 0xFFFFFF);
-            else drawString(fontRendererObj, "Failed to load maps!", 10, 10, 0xFF0000);
+            // if (loadingMapList) drawString(fontRendererObj, "Loading maps...", 10, 10, 0xFFFFFF);
+            // else drawString(fontRendererObj, "Failed to load maps!", 10, 10, 0xFF0000);
             return;
         }
 
@@ -174,7 +136,7 @@ public class MapScreen extends GuiScreen {
             }
         }
 
-        drawString(fontRendererObj, currentMap.title, 10, 10, 0xFFFFFF);
+        // drawString(fontRendererObj, currentMap.title, 10, 10, 0xFFFFFF);
     }
 
     Point lastMousePos;
@@ -182,8 +144,8 @@ public class MapScreen extends GuiScreen {
     double dragStartViewX, dragStartViewY;
     boolean dragging;
 
-    @Override
     public void handleMouseInput() {
+        Minecraft mc = Minecraft.getMinecraft();
         boolean lmbDown = Mouse.isButtonDown(0);
         Point currentMousePos = new Point(
             (Mouse.getEventX() * width) / mc.displayWidth,
@@ -212,48 +174,26 @@ public class MapScreen extends GuiScreen {
                 dragStartViewY = viewPortY;
             }
         }
-
-        if (wheel < 0) {
-            viewPortW *= 2;
-            viewPortH = viewPortW * drawArea.getHeight() / drawArea.getWidth();
-
-            viewPortX -= viewPortW / 4;
-            viewPortY -= viewPortH / 4;
-        } else if (wheel > 0) {
-            double mouseOverX = (currentMousePos.getX() - drawArea.getX()) * viewPortW / drawArea.getWidth()
-                + viewPortX;
-            double mouseOverY = (currentMousePos.getY() - drawArea.getY()) * viewPortH / drawArea.getHeight()
-                + viewPortY;
-
-            viewPortX += (mouseOverX - viewPortX) / 2;
-            viewPortY += (mouseOverY - viewPortY) / 2;
-
-            viewPortW /= 2;
-            viewPortH = viewPortW * drawArea.getHeight() / drawArea.getWidth();
-        }
-
         lastMousePos = currentMousePos;
     }
 
-    @Override
-    public void handleKeyboardInput() {
-        super.handleKeyboardInput();
+    public void zoomIn(Point currentMousePos) {
+        double mouseOverX = (currentMousePos.getX() - drawArea.getX()) * viewPortW / drawArea.getWidth() + viewPortX;
+        double mouseOverY = (currentMousePos.getY() - drawArea.getY()) * viewPortH / drawArea.getHeight() + viewPortY;
+
+        viewPortX += (mouseOverX - viewPortX) / 2;
+        viewPortY += (mouseOverY - viewPortY) / 2;
+
+        viewPortW /= 2;
+        viewPortH = viewPortW * drawArea.getHeight() / drawArea.getWidth();
     }
 
-    @Override
-    protected void keyTyped(char typedChar, int keyCode) {
-        super.keyTyped(typedChar, keyCode);
+    public void zoomOut(Point currentMousePos) {
+        viewPortW *= 2;
+        viewPortH = viewPortW * drawArea.getHeight() / drawArea.getWidth();
 
-        switch (keyCode) {
-            case Keyboard.KEY_HOME:
-                setNewMapIndex(currentMapIndex - 1);
-                break;
-            case Keyboard.KEY_END:
-                setNewMapIndex(currentMapIndex + 1);
-
-                break;
-        }
-
+        viewPortX -= viewPortW / 4;
+        viewPortY -= viewPortH / 4;
     }
 
     void setNewMapIndex(int newIndex) {
@@ -265,20 +205,19 @@ public class MapScreen extends GuiScreen {
         currentMapIndex = newIndex;
     }
 
-    @Override
-    public void updateScreen() {
-        super.updateScreen();
+    public void updateScreen(Area a) {
+        drawArea.setSize(a.w(), a.h());
 
-        drawArea.setSize(this.width, this.height);
-
-        if (viewPortW <= 0) viewPortW = this.width / 128.0;
+        if (viewPortW <= 0) viewPortW = a.w() / 128.0;
 
         viewPortH = viewPortW * drawArea.getHeight() / drawArea.getWidth();
     }
 
-    @Override
-    public void onGuiClosed() {
-        super.onGuiClosed();
+    public void onClose() {
         currentMap.clear();
+    }
+
+    public int getCurrentMapIndex() {
+        return currentMapIndex;
     }
 }

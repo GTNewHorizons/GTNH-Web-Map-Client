@@ -71,7 +71,15 @@ public class TileLoaderUrl extends TileLoaderBase {
         URL imageURL = null;
         try {
             imageURL = new URL(
-                "http://127.0.0.1:8123/tiles/" + worldName + "/" + mapName + "/" + tileGroup + "/" + tileName + ".png");
+                RemoteConfiguration.baseUrl + "/tiles/"
+                    + worldName
+                    + "/"
+                    + mapName
+                    + "/"
+                    + tileGroup
+                    + "/"
+                    + tileName
+                    + ".png");
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
