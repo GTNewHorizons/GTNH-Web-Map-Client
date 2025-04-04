@@ -45,9 +45,15 @@ public class RemoteConfiguration {
                             String mapTitle = (String) mapObj.get("title");
                             String mapPrefix = (String) mapObj.get("prefix");
 
+                            double[] mapToWorldArr = toDoubleArr((JsonArray)mapObj.get("maptoworld"));
+                            double[] worldToMapArr = toDoubleArr((JsonArray)mapObj.get("worldtomap"));
+
                             RemoteMap rm = new RemoteMap(rw, mapName, mapTitle, mapPrefix);
 
+                            rm.setMatrices(mapToWorldArr, worldToMapArr);
+
                             allMaps.add(rm.getTileDataBase());
+                            rw.addMap(rm);
                         }
                     }
                 }
@@ -60,5 +66,18 @@ public class RemoteConfiguration {
         } catch (JsonException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    double[] toDoubleArr(JsonArray arr){
+        double[] ret = new double[arr.size()];
+
+        for(int i = 0; i < arr.size(); i++)
+            ret[i] = arr.getDouble(i);
+
+        return ret;
+    }
+
+    public ArrayList<RemoteWorld> getWorlds(){
+        return worlds;
     }
 }

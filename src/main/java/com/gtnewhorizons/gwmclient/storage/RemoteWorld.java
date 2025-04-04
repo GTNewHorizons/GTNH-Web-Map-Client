@@ -25,4 +25,8 @@ public class RemoteWorld {
     public ArrayList<RemoteMap> getMaps() {
         return maps;
     }
+
+    public void addMap(RemoteMap rm) {
+        maps.add(rm);
+    }
 }

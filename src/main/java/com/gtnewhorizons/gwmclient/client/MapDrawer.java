@@ -1,9 +1,6 @@
 package com.gtnewhorizons.gwmclient.client;
 
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.gtnewhorizons.gwmclient.storage.GenericMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 
@@ -14,59 +11,58 @@ import org.lwjgl.util.Rectangle;
 
 import com.cleanroommc.modularui.widget.sizer.Area;
 import com.gtnewhorizons.gwmclient.storage.PerMapTileDataBase;
-import com.gtnewhorizons.gwmclient.storage.RemoteConfiguration;
 import com.gtnewhorizons.gwmclient.storage.Tile;
+
+import javax.vecmath.Point2d;
+import javax.vecmath.Point3d;
 
 public class MapDrawer {
 
-    static ExecutorService backgroundLoader = Executors.newSingleThreadExecutor();
-    RemoteConfiguration remoteConfig;
+
     private final int width;
     private final int height;
     Rectangle drawArea = new Rectangle(0, 0, 100, 100);
 
-    PerMapTileDataBase currentMap;
-    int currentMapIndex = 0;
-
-    ArrayList<PerMapTileDataBase> allMaps = new ArrayList<>();
+    PerMapTileDataBase currentTileDB;
 
     double viewPortX, viewPortY, viewPortW, viewPortH;
 
-    boolean loadingMapList = true;
+    private GenericMap currentMap;
 
     public MapDrawer(int width, int height) {
         this.width = width;
         this.height = height;
-
-        backgroundLoader.submit(() -> loadMapList());
 
         viewPortX = viewPortY = 0;
         viewPortW = this.width / 128.0;
         viewPortH = this.height / 128.0;
     }
 
-    private void loadMapList() {
+    public void setMap(GenericMap map){
+        if(currentTileDB != null)
+            currentTileDB.clear();
 
-        remoteConfig = new RemoteConfiguration();
-        remoteConfig.load();
+        if(currentMap != null){
+            var centerPosWorld = currentMap.mapCoordToWorld(new Point2d(viewPortX + viewPortW/2, viewPortY+viewPortH/2));
+            var newCenterMapCoord = map.worldToMapCoord(centerPosWorld);
 
-        allMaps = remoteConfig.allMaps;
-
-        if (allMaps.size() > 0) {
-            currentMap = allMaps.get(0);
+            viewPortX = newCenterMapCoord.x -viewPortW/2;
+            viewPortY = newCenterMapCoord.y -viewPortH/2;
         }
-        loadingMapList = false;
+
+        currentTileDB = map.getTileDataBase();
+        currentMap = map;
     }
+
+
 
     Tile getTile(int x, int y, int zoom) {
 
-        return currentMap.getTileAt(x, y, zoom);
+        return currentTileDB.getTileAt(x, y, zoom);
     }
 
     void draw() {
-        if (currentMap == null) {
-            // if (loadingMapList) drawString(fontRendererObj, "Loading maps...", 10, 10, 0xFFFFFF);
-            // else drawString(fontRendererObj, "Failed to load maps!", 10, 10, 0xFF0000);
+        if (currentTileDB == null) {
             return;
         }
 
@@ -79,7 +75,7 @@ public class MapDrawer {
         int zoom = 0;
 
         double tileWidthOnScreen = drawArea.getWidth() / viewPortW;
-        int tileWidth = currentMap.getTileBaseWidth();
+        int tileWidth = currentTileDB.getTileBaseWidth();
 
         while (zoom < 9 && tileWidthOnScreen < tileWidth / 2.0) {
             zoom++;
@@ -115,8 +111,9 @@ public class MapDrawer {
 
                 left = (x - viewPortX) * drawArea.getWidth() / viewPortW;
                 right = (x - viewPortX + zoomStep) * drawArea.getWidth() / viewPortW;
-                top = drawArea.getHeight() - (y - viewPortY + zoomStep) * drawArea.getHeight() / viewPortH;
-                bottom = drawArea.getHeight() - (y - viewPortY) * drawArea.getHeight() / viewPortH;
+
+                top = drawArea.getHeight() - (y - viewPortY + 1) * drawArea.getHeight() / viewPortH;
+                bottom = drawArea.getHeight() - (y - viewPortY-zoomStep +1) * drawArea.getHeight() / viewPortH;
 
                 if (t.textureId != -1) {
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, t.textureId);
@@ -135,8 +132,6 @@ public class MapDrawer {
                 }
             }
         }
-
-        // drawString(fontRendererObj, currentMap.title, 10, 10, 0xFFFFFF);
     }
 
     Point lastMousePos;
@@ -196,14 +191,7 @@ public class MapDrawer {
         viewPortY -= viewPortH / 4;
     }
 
-    void setNewMapIndex(int newIndex) {
-        if (newIndex >= allMaps.size()) newIndex = 0;
-        if (newIndex < 0) newIndex = allMaps.size() - 1;
 
-        currentMap.clear();
-        currentMap = allMaps.get(newIndex);
-        currentMapIndex = newIndex;
-    }
 
     public void updateScreen(Area a) {
         drawArea.setSize(a.w(), a.h());
@@ -214,10 +202,25 @@ public class MapDrawer {
     }
 
     public void onClose() {
-        currentMap.clear();
+        if(currentTileDB != null)
+            currentTileDB.clear();
     }
 
-    public int getCurrentMapIndex() {
-        return currentMapIndex;
+    public Point2d pointToMapCoord(Point p){
+        if(currentMap == null)
+            return new Point2d();
+
+        return new Point2d((viewPortX + p.getX() * viewPortW / drawArea.getWidth()), (viewPortY + p.getY() * viewPortH / drawArea.getHeight())-1);
     }
+
+    public void focusOnWorldPoint(Point3d worldPoint){
+        if(currentMap == null)
+            return;
+
+        var mapCoord = currentMap.worldToMapCoord(worldPoint);
+
+        viewPortX = mapCoord.x - viewPortW / 2;
+        viewPortY = mapCoord.y - viewPortH / 2;
+    }
+
 }
