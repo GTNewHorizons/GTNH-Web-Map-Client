@@ -1,7 +1,5 @@
 package com.gtnewhorizons.gwmclient.storage;
 
-import org.lwjgl.util.Point;
-
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 
@@ -42,8 +40,8 @@ public class RemoteMap extends GenericMap {
         this.worldToMap = worldToMapArr;
     }
 
-    public Point3d mapCoordToWorld(Point2d p){
-        double lat = p.x * 128, lon = p.y*128+128, y = 64;
+    public Point3d mapCoordToWorld(Point2d p) {
+        double lat = p.x * 128, lon = p.y * 128 + 128, y = 64;
 
         double wx = mapToWorld[0] * lat + mapToWorld[1] * lon + mapToWorld[2] * y;
         double wz = mapToWorld[6] * lat + mapToWorld[7] * lon + mapToWorld[8] * y;

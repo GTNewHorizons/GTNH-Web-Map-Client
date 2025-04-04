@@ -1,33 +1,32 @@
 package com.gtnewhorizons.gwmclient.client;
 
-import com.cleanroommc.modularui.ModularUI;
-import com.cleanroommc.modularui.drawable.text.TextRenderer;
-import com.cleanroommc.modularui.utils.Alignment;
-import com.cleanroommc.modularui.widgets.TextWidget;
-import com.gtnewhorizons.gwmclient.storage.GenericMap;
-import com.gtnewhorizons.gwmclient.storage.RemoteConfiguration;
-import com.gtnewhorizons.gwmclient.storage.RemoteMap;
-import com.gtnewhorizons.gwmclient.storage.RemoteWorld;
-import net.minecraft.client.Minecraft;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import javax.vecmath.Point2d;
+import javax.vecmath.Point3d;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.Point;
 
 import com.cleanroommc.modularui.drawable.Rectangle;
+import com.cleanroommc.modularui.drawable.text.TextRenderer;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.ModularScreen;
 import com.cleanroommc.modularui.screen.viewport.GuiContext;
 import com.cleanroommc.modularui.screen.viewport.ModularGuiContext;
 import com.cleanroommc.modularui.theme.WidgetTheme;
+import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.widget.sizer.Area;
-
-import javax.vecmath.Point2d;
-import javax.vecmath.Point3d;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.gtnewhorizons.gwmclient.storage.GenericMap;
+import com.gtnewhorizons.gwmclient.storage.RemoteConfiguration;
+import com.gtnewhorizons.gwmclient.storage.RemoteMap;
+import com.gtnewhorizons.gwmclient.storage.RemoteWorld;
 
 public class ModularTest {
 
@@ -61,13 +60,13 @@ public class ModularTest {
             remoteConfig = new RemoteConfiguration();
             remoteConfig.load();
 
-            for(RemoteWorld rw : remoteConfig.getWorlds()){
-                for(RemoteMap rm : rw.getMaps()){
+            for (RemoteWorld rw : remoteConfig.getWorlds()) {
+                for (RemoteMap rm : rw.getMaps()) {
                     maps.add(rm);
                 }
             }
 
-            if(maps.size() > 0) {
+            if (maps.size() > 0) {
                 currentMap = maps.get(0);
                 drawer.setMap(currentMap);
             }
@@ -93,12 +92,11 @@ public class ModularTest {
 
             rect.draw(context, area.x, area.y, area.width, area.height);
 
-            if(loadingMapList)
-                return;
+            if (loadingMapList) return;
 
-            if(first){
+            if (first) {
                 EntityClientPlayerMP thePlayer = Minecraft.getMinecraft().thePlayer;
-                drawer.focusOnWorldPoint(new Point3d(thePlayer.posX, thePlayer.posY,thePlayer.posZ));
+                drawer.focusOnWorldPoint(new Point3d(thePlayer.posX, thePlayer.posY, thePlayer.posZ));
                 first = false;
             }
 
@@ -166,16 +164,14 @@ public class ModularTest {
             switch (keyCode) {
                 case Keyboard.KEY_HOME:
                     currentMapIndex--;
-                    if (currentMapIndex < 0)
-                        currentMapIndex = maps.size() - 1;
+                    if (currentMapIndex < 0) currentMapIndex = maps.size() - 1;
 
                     currentMap = maps.get(currentMapIndex);
                     drawer.setMap(currentMap);
                     break;
                 case Keyboard.KEY_END:
                     currentMapIndex++;
-                    if (currentMapIndex >= maps.size())
-                        currentMapIndex = 0;
+                    if (currentMapIndex >= maps.size()) currentMapIndex = 0;
 
                     currentMap = maps.get(currentMapIndex);
                     drawer.setMap(currentMap);

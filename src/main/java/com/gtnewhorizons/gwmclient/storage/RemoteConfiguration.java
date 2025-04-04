@@ -45,8 +45,8 @@ public class RemoteConfiguration {
                             String mapTitle = (String) mapObj.get("title");
                             String mapPrefix = (String) mapObj.get("prefix");
 
-                            double[] mapToWorldArr = toDoubleArr((JsonArray)mapObj.get("maptoworld"));
-                            double[] worldToMapArr = toDoubleArr((JsonArray)mapObj.get("worldtomap"));
+                            double[] mapToWorldArr = toDoubleArr((JsonArray) mapObj.get("maptoworld"));
+                            double[] worldToMapArr = toDoubleArr((JsonArray) mapObj.get("worldtomap"));
 
                             RemoteMap rm = new RemoteMap(rw, mapName, mapTitle, mapPrefix);
 
@@ -68,16 +68,15 @@ public class RemoteConfiguration {
         }
     }
 
-    double[] toDoubleArr(JsonArray arr){
+    double[] toDoubleArr(JsonArray arr) {
         double[] ret = new double[arr.size()];
 
-        for(int i = 0; i < arr.size(); i++)
-            ret[i] = arr.getDouble(i);
+        for (int i = 0; i < arr.size(); i++) ret[i] = arr.getDouble(i);
 
         return ret;
     }
 
-    public ArrayList<RemoteWorld> getWorlds(){
+    public ArrayList<RemoteWorld> getWorlds() {
         return worlds;
     }
 }
