@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 
 import net.minecraft.client.Minecraft;
@@ -15,13 +14,11 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.util.Point;
 
 import com.cleanroommc.modularui.drawable.Rectangle;
-import com.cleanroommc.modularui.drawable.text.TextRenderer;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.ModularScreen;
 import com.cleanroommc.modularui.screen.viewport.GuiContext;
 import com.cleanroommc.modularui.screen.viewport.ModularGuiContext;
 import com.cleanroommc.modularui.theme.WidgetTheme;
-import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.widget.sizer.Area;
 import com.gtnewhorizons.gwmclient.storage.GenericMap;
 import com.gtnewhorizons.gwmclient.storage.RemoteConfiguration;
@@ -103,18 +100,18 @@ public class ModularTest {
             drawer.updateScreen(area);
             drawer.draw();
 
-            TextRenderer renderer = TextRenderer.SHARED;
-            renderer.setColor(-1);
-            renderer.setAlignment(Alignment.CenterLeft, getArea().w() + 1, getArea().h());
-            renderer.setShadow(widgetTheme.getTextShadow());
-            renderer.setPos(getArea().getPadding().left, getArea().getPadding().top);
-            renderer.setScale(1);
-            renderer.setSimulate(false);
-
-            Point mouse = getMousePos();
-            Point2d mapCoord = drawer.pointToMapCoord(mouse);
-
-            renderer.draw("Map: " + mapCoord + "\nWorld: " + currentMap.mapCoordToWorld(mapCoord));
+            // TextRenderer renderer = TextRenderer.SHARED;
+            // renderer.setColor(-1);
+            // renderer.setAlignment(Alignment.CenterLeft, getArea().w() + 1, getArea().h());
+            // renderer.setShadow(widgetTheme.getTextShadow());
+            // renderer.setPos(getArea().getPadding().left, getArea().getPadding().top);
+            // renderer.setScale(1);
+            // renderer.setSimulate(false);
+            //
+            // Point mouse = getMousePos();
+            // Point2d mapCoord = drawer.pointToMapCoord(mouse);
+            //
+            // renderer.draw("Map: " + mapCoord + "\nWorld: " + currentMap.mapCoordToWorld(mapCoord));
         }
 
         @Override
