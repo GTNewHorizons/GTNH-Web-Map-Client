@@ -111,7 +111,7 @@ public class MapDrawer {
 
                 top = drawArea.getHeight() - (y - viewPortY + 1) * drawArea.getHeight() / viewPortH;
                 bottom = drawArea.getHeight() - (y - viewPortY - zoomStep + 1) * drawArea.getHeight() / viewPortH;
-                
+
                 if (t.textureId != -1) {
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, t.textureId);
                     // GL11.glColor4f(1, 1, 1, 1);
